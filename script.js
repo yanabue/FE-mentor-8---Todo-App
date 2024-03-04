@@ -43,9 +43,10 @@ window.addEventListener("resize", mobileActionsBar);
 mobileActionsBar();
 
 // Initialize arrays of tasks
-const completedTasks = [];
-const incompleteTasks = [];
-const existingTasks = [completedTasks, incompleteTasks];
+let completedTasks = [];
+let incompleteTasks = [];
+let existingTasks = [completedTasks, incompleteTasks];
+
 
 // Constructor of task class
 class Task {
@@ -80,9 +81,15 @@ addEventListener("keydown", function addNewTask(event) {
 function addTasktoList(inputField) {
   let newTask = new Task(inputField.value);
   incompleteTasks.push(newTask);
-  console.log(existingTasks)
   // Add instance to array of incompleteTasks
 
+  appendNewLiToDOM(newTask);
+
+  inputField.value = "";
+  updateLeftItemsNumber();
+}
+
+function appendNewLiToDOM(newTask) {
   // Create new li.task element that is assigned the id and title of corresponding object
   const list = document.getElementById("task-list");
   const newListItem = document.createElement("li");
@@ -94,14 +101,11 @@ function addTasktoList(inputField) {
   newListItem.ondragover = dragOverHandler;
   newListItem.ondragstart = dragStartHandler;
   newListItem.innerHTML = `
-        <label class="custom-radio"></label>
-        <p class="task-name">${inputField.value}</p>
-    `;
+         <label class="custom-radio"></label>
+         <p class="task-name">${newTask.title}</p>
+     `;
   newListItem.classList.add("task");
   list.appendChild(newListItem);
-
-  inputField.value = "";
-  updateLeftItemsNumber();
 }
 
 // Update the 'left-items' line as tasks are complete or added
@@ -110,10 +114,9 @@ function updateLeftItemsNumber() {
   leftItemsNum.innerText = `${incompleteTasks.length} items left`;
 }
 
-
 // Define task as completed, by click on task p,label,check img
 const taskList = document.querySelector("ul");
-taskList.addEventListener("click", function markAsDone(event){
+taskList.addEventListener("click", function markAsDoneUndone(event) {
   const label = event.target.parentElement.firstElementChild;
   const checkImgEl = document.createElement("img");
   checkImgEl.src = "./images/icon-check.svg";
@@ -123,7 +126,7 @@ taskList.addEventListener("click", function markAsDone(event){
     event.target.tagName.toLowerCase() === "img" ||
     event.target.tagName.toLowerCase() === "p"
   ) {
-    event.target.closest('li').classList.toggle("completed");
+    event.target.closest("li").classList.toggle("completed");
     if (!label.querySelector("img")) {
       label.appendChild(checkImgEl);
     } else {
@@ -137,7 +140,7 @@ taskList.addEventListener("click", function markAsDone(event){
   }
 });
 
-// On task click - pass the li element into this function that 
+// On task click - pass the li element into this function that
 // removes/adds the task to the correct list
 function changeLists(li) {
   if (
@@ -145,6 +148,7 @@ function changeLists(li) {
     completedTasks.findIndex((task) => task.id == li.dataset.id) === -1
   ) {
     let taskToMove = incompleteTasks.find((task) => task.id == li.dataset.id);
+    console.log(taskToMove instanceof Task)
     taskToMove.changeTaskStatus();
   } else if (
     !li.classList.contains("completed") &&
@@ -155,7 +159,7 @@ function changeLists(li) {
   }
 }
 
-// Sorting buttons 
+// Sorting buttons
 const allBtn = document.getElementById("all");
 const activeBtn = document.getElementById("active");
 const completedBtn = document.getElementById("completed");
@@ -264,3 +268,5 @@ function dragOverHandler() {
     insertBefore = false;
   }
 }
+
+
